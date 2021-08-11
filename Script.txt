@@ -1,0 +1,52 @@
+
+create your Artifactory server instance, add the following line to your script:
+
+def server = Artifactory.server('my-server-id')
+
+def server = Artifactory.newServer('artifactory-url', 'username', 'password')
+
+
+server username = 'new-user-name'
+server password = 'new-passwprd'
+server bypassProxy = true
+
+def downloadSpec = """{
+ "files": [
+  {
+      "pattern": "bazinga-repo/*.zip",
+      "target": "bazinga/"
+    }
+ ]
+}"""
+
+To download the files, add the following line to your script:
+
+server.download(downloadSpec)
+
+def uploadSpec = """{
+  "files": [
+    {
+      "pattern": "bazinga/*froggy*.zip",
+      "target": "bazinga-repo/froggy-files"
+    }
+ ]
+}"""
+server.upload(uploadSpec)
+
+def buildInfo1 = server.download(downloadSpec)
+def buildInfo2 = server.upload(uploadSpec)
+buildInfo1.append(buildInfo2)
+server.publishBuildInfo(buildInfo1)
+
+
+Here's how you reset to the include/exclude patterns default:
+
+buildInfo.env.filter.reset()
+
+def buildInfo = Artifactory.newBuildInfo()
+buildInfo.env.filter.addInclude("*a*")
+buildInfo.env.filter.addExclude("DONT_COLLECT*")
+
+To collect environment variables at any point in the script, use:
+
+buildInfo.env.collect()
